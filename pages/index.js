@@ -46,7 +46,7 @@ export default function Home() {
 
   return (
     <div>
-      <h1>Blank NextJS App</h1>
+      <h1>Blank NextJS App 2</h1>
       <input type="file" id="fileInput" onChange={handleFileChange} />
       <div>
         {files.map((file, index) => (
