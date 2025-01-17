@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
+    "dev": "pnpm next dev",
+    "buildlocal": "cross-env USEBASEPATH=false pnpm next build",
+    "buildwithbasepath": "cross-env USEBASEPATH=true pnpm next build",
+    "servelocal": "serve out"
   },
   "keywords": [],
   "author": "",
@@ -14,7 +15,9 @@
   "dependencies": {
     "next": "^15.1.4",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "tar-stream": "^3.1.7"
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
   }
 }
