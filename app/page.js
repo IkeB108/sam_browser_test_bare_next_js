@@ -3,6 +3,8 @@
 
 import { useState, useEffect } from 'react';
 
+const testDatabaseVersion = 2
+
 function HomePage() {
   const [file, setFile] = useState(null);
   const [statusMessage, setStatusMessage] = useState("No untar library loaded.")
@@ -65,7 +67,9 @@ function HomePage() {
       <br />
       <button onClick={onUntarClick}>Untar</button>
       <br />
-      <TestJavascriptButton />
+      <TestJavascriptButton /> <br />
+      <TestGetIDBButton /> <br />
+      <TestSetIDBButton /> <br />
       <StatusParagraph statusMessage={statusMessage} />
     </div>
   )
@@ -88,6 +92,51 @@ function TestJavascriptButton(){
   }
   return (
     <button onClick={onTestJavascriptClick}>Test Javascript</button>
+  )
+}
+
+function TestSetIDBButton(){
+  const onTestSetIDBClick = function(){
+    //Set IDB key-value pair "currentTime" to current time in ms
+    let request = indexedDB.open("testDatabase", testDatabaseVersion) 
+    
+    request.onupgradeneeded = function(event){
+      let db = event.target.result
+      db.createObjectStore("testStore")
+    }
+    request.onsuccess = function(event){
+      let db = event.target.result
+      let transaction = db.transaction("testStore", "readwrite")
+      let objectStore = transaction.objectStore("testStore")
+      let now = Date.now()
+      objectStore.put( now, "currentTime")
+      transaction.oncomplete = function(){
+        alert("IDB currentTime set to " + now)
+      }
+    }
+  }
+  return (
+    <button onClick={onTestSetIDBClick}>Set IDB currentTime</button>
+  )
+}
+
+function TestGetIDBButton(){
+  const onTestGetIDBClick = async function(){
+    //Set IDB key-value pair "currentTime" to current time in ms
+    let request = indexedDB.open("testDatabase", testDatabaseVersion) 
+    request.onsuccess = function(event){
+      let db = event.target.result
+      let transaction = db.transaction(["testStore"], "readwrite")
+      let objectStore = transaction.objectStore("testStore")
+      
+      //alert objectStore.get("currentTime") when it loads asynchronously
+      objectStore.get("currentTime").onsuccess = function(event){
+        alert("IDB currentTime is " + event.target.result)
+      }
+    }
+  }
+  return (
+    <button onClick={onTestGetIDBClick}>Get IDB currentTime</button>
   )
 }
 
