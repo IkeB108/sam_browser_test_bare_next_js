@@ -1,3 +1,4 @@
+//    https://ikeb108.github.io/sam_browser_test_bare_next_js/out/
 'use client'
 
 import { useState, useEffect } from 'react';
@@ -6,13 +7,6 @@ function HomePage() {
   const [file, setFile] = useState(null);
   const [statusMessage, setStatusMessage] = useState("No untar library loaded.")
   const [allExtractedFiles, setAllExtractedFiles] = useState(null)
-  
-  const checkThatUntarIsLoaded = setInterval(() => {
-    if(typeof untar === "function"){
-      clearInterval(checkThatUntarIsLoaded)
-      setStatusMessage("Untar library is loaded.")
-    }
-  }, 200)
   
   const onUntarClick = () => {  
     //Check if file is selected
@@ -70,6 +64,8 @@ function HomePage() {
       <br />
       <br />
       <button onClick={onUntarClick}>Untar</button>
+      <br />
+      <TestJavascriptButton />
       <StatusParagraph statusMessage={statusMessage} />
     </div>
   )
@@ -79,6 +75,19 @@ function StatusParagraph({ statusMessage }){
   //Create a p element with jsx whose text content can be changed with a function
   return (
     <p id="statusParagraph" style={{whiteSpace: 'pre-wrap'}}>{statusMessage}</p>
+  )
+}
+
+function TestJavascriptButton(){
+  
+  const onTestJavascriptClick = function(){
+    let alertMessage=  "Javascript is working!"
+    if(typeof untar === "function")alertMessage += " Untar is loaded!"
+    alert(alertMessage)
+    
+  }
+  return (
+    <button onClick={onTestJavascriptClick}>Test Javascript</button>
   )
 }
 
