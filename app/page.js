@@ -2,13 +2,19 @@
 
 import { useState, useEffect } from 'react';
 
-
 function HomePage() {
   const [file, setFile] = useState(null);
-  const [statusMessage, setStatusMessage] = useState("Waiting for file selection.")
+  const [statusMessage, setStatusMessage] = useState("No untar library loaded.")
   const [allExtractedFiles, setAllExtractedFiles] = useState(null)
-  const onUntarClick = () => {
-    
+  
+  const checkThatUntarIsLoaded = setInterval(() => {
+    if(typeof untar === "function"){
+      clearInterval(checkThatUntarIsLoaded)
+      setStatusMessage("Untar library is loaded.")
+    }
+  }, 200)
+  
+  const onUntarClick = () => {  
     //Check if file is selected
     if(file === null){
       alert("Please select a file first.")
