@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 
 const testDatabaseVersion = 2
 const fileDatabaseVersion = 1
-const useBasePath = process.env.USEBASEPATH==="true"
+const useBasePath = process.env.NEXT_PUBLIC_USEBASEPATH==="true"
 const basePrefix = useBasePath ? "/sam_browser_test_bare_next_js/out" : ""
 console.log(
   "Base prefix: " + (basePrefix.length > 0 ? basePrefix : "empty")
@@ -80,7 +80,7 @@ function HomePage() {
   
   return (
     <div>
-      <h1>Untar & IDB Test v3</h1>
+      <h1>Untar & IDB Test v4</h1>
       <input type="file" onChange={onFileInputChange} />
       <br />
       <br />

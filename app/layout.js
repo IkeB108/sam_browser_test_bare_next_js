@@ -1,4 +1,4 @@
-const useBasePath = process.env.USEBASEPATH==="true"
+const useBasePath = process.env.NEXT_PUBLIC_USEBASEPATH==="true"
 const basePrefix = useBasePath ? "/sam_browser_test_bare_next_js/out" : ""
 export const metadata = {
   title: 'UntarIDB Test',

@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "dev": "pnpm next dev",
-    "buildlocal": "cross-env USEBASEPATH=false pnpm next build",
-    "buildwithbasepath": "cross-env USEBASEPATH=true pnpm next build",
-    "servelocal": "serve out"
+    "buildlocal": "cross-env NEXT_PUBLIC_USEBASEPATH=false pnpm next build",
+    "buildwithbasepath": "cross-env NEXT_PUBLIC_USEBASEPATH=true pnpm next build",
+    "servelocal": "serve out",
+    "servewithbasepath": "cross-env NEXT_PUBLIC_USEBASEPATH=true pnpm next dev"
   },
   "keywords": [],
   "author": "",
