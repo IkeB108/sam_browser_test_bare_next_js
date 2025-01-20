@@ -3,13 +3,15 @@
 https://ikeb108.github.io/sam_browser_test_bare_next_js/out/
 */
 
-const useBasePath = process.env.USEBASEPATH==="true"
-const basePrefix = useBasePath ? "/sam_browser_test_bare_next_js/out" : ""
-
 import { useState, useEffect } from 'react';
 
 const testDatabaseVersion = 2
 const fileDatabaseVersion = 1
+const useBasePath = process.env.USEBASEPATH==="true"
+const basePrefix = useBasePath ? "/sam_browser_test_bare_next_js/out" : ""
+console.log(
+  "Base prefix: " + (basePrefix.length > 0 ? basePrefix : "empty")
+)
 
 function HomePage() {
   const [file, setFile] = useState(null);
@@ -196,7 +198,7 @@ function StoreFilesInIDBButton(props){
 function StoreFilesInIDBWithWebWorkerButton(props){
   let filesToStore = props.filesToStore;
   const storeFilesInIDBWithWebWorker = function(){
-    console.log("Clicked for web worker.")
+    console.log("Clicked for web worker. Base Prefix: " + (basePrefix.length > 0 ? basePrefix : "empty"))
     let workerPath = basePrefix + "/worker_for_store_files_in_idb.js"
     const worker = new Worker(workerPath)
     worker.onmessage = function(event){
