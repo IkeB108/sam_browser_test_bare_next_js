@@ -196,10 +196,13 @@ function StoreFilesInIDBButton(props){
 function StoreFilesInIDBWithWebWorkerButton(props){
   let filesToStore = props.filesToStore;
   const storeFilesInIDBWithWebWorker = function(){
-    const worker = new Worker(basePrefix + "/worker_for_store_files_in_idb.js")
+    console.log("Clicked for web worker.")
+    let workerPath = basePrefix + "/worker_for_store_files_in_idb.js"
+    const worker = new Worker(workerPath)
     worker.onmessage = function(event){
       console.log(event.data)
     }
+    console.log(worker, workerPath)
     worker.postMessage("park name?")
     
   }
