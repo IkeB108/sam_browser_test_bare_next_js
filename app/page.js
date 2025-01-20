@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 
 const testDatabaseVersion = 2
 const fileDatabaseVersion = 1
-const programVersion = 5
+const programVersion = 6
 const useBasePath = process.env.NEXT_PUBLIC_USEBASEPATH==="true"
 const basePrefix = useBasePath ? "/sam_browser_test_bare_next_js/out" : ""
 console.log(
@@ -91,7 +91,7 @@ function HomePage() {
       <TestGetIDBButton /> <br />
       <TestSetIDBButton /> <br />
       <StoreFilesInIDBButton filesToStore={allExtractedFiles} /> <br />
-      <StoreFilesInIDBWithWebWorkerButton filesToStore={allExtractedFiles} /><br />
+      <StoreFilesInIDBWithWebWorkerButton filesToStore={allExtractedFiles} statusMessageSetter={setStatusMessage} /><br />
       <StatusParagraph statusMessage={statusMessage} />
       <ImageDisplay />
     </div>
@@ -198,15 +198,17 @@ function StoreFilesInIDBButton(props){
 
 function StoreFilesInIDBWithWebWorkerButton(props){
   let filesToStore = props.filesToStore;
+  let setStatusMessage = props.statusMessageSetter;
   const storeFilesInIDBWithWebWorker = function(){
     console.log("Clicked for web worker. Base Prefix: " + (basePrefix.length > 0 ? basePrefix : "empty"))
     let workerPath = basePrefix + "/worker_for_store_files_in_idb.js"
     const worker = new Worker(workerPath)
     worker.onmessage = function(event){
-      alert(event.data)
+      if(event.data.type == "status_update_from_web_worker"){
+        setStatusMessage(event.data.content)
+      }
     }
-    console.log(worker, workerPath)
-    worker.postMessage("park name?")
+    worker.postMessage({filesToStore, fileDatabaseVersion})
     
   }
   return (
