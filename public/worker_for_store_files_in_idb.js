@@ -13,6 +13,8 @@ self.onmessage = async function(event){
     let db = event.target.result
     let transaction = db.transaction("allFiles", "readwrite")
     let objectStore = transaction.objectStore("allFiles")
+    objectStore.clear()
+    console.log("objectStore cleared")
     for(let i in filesToStore){
       objectStore.put(filesToStore[i].blob, filesToStore[i].name)
       self.postMessage({
