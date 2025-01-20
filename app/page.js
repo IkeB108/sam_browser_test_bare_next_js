@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 
 const testDatabaseVersion = 2
 const fileDatabaseVersion = 1
+const programVersion = 5
 const useBasePath = process.env.NEXT_PUBLIC_USEBASEPATH==="true"
 const basePrefix = useBasePath ? "/sam_browser_test_bare_next_js/out" : ""
 console.log(
@@ -80,7 +81,7 @@ function HomePage() {
   
   return (
     <div>
-      <h1>Untar & IDB Test v4</h1>
+      <h1>Untar & IDB Test v{programVersion}</h1>
       <input type="file" onChange={onFileInputChange} />
       <br />
       <br />
@@ -202,7 +203,7 @@ function StoreFilesInIDBWithWebWorkerButton(props){
     let workerPath = basePrefix + "/worker_for_store_files_in_idb.js"
     const worker = new Worker(workerPath)
     worker.onmessage = function(event){
-      console.log(event.data)
+      alert(event.data)
     }
     console.log(worker, workerPath)
     worker.postMessage("park name?")
