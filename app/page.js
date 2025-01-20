@@ -4,10 +4,11 @@
 import { useState, useEffect } from 'react';
 
 const testDatabaseVersion = 2
+const fileDatabaseVersion = 1
 
 function HomePage() {
   const [file, setFile] = useState(null);
-  const [statusMessage, setStatusMessage] = useState("No untar library loaded.")
+  const [statusMessage, setStatusMessage] = useState("Waiting for file input.")
   const [allExtractedFiles, setAllExtractedFiles] = useState(null)
   
   const onUntarClick = () => {  
@@ -22,9 +23,20 @@ function HomePage() {
     reader.onload = function(event){
       untar(reader.result).then(
         function (extractedFiles){
-          setAllExtractedFiles(extractedFiles)
-          console.log(extractedFiles)
-          setStatusMessage(extractedFiles.length + " files extracted:\n" +  listOfExtractedFilesAsString(extractedFiles) )
+          let newExtractedFiles = []
+          for(let i in extractedFiles){
+            let oldBlob = extractedFiles[i].blob
+            let newBlob = new Blob([oldBlob], { type: 'image/webp' })
+            let newExtractedFile = {
+              'name': extractedFiles[i].name,
+              'blob': newBlob,
+              'size': extractedFiles[i].size
+            }
+            newExtractedFiles.push(newExtractedFile)
+          }
+          setAllExtractedFiles(newExtractedFiles)
+          console.log(newExtractedFiles)
+          setStatusMessage(newExtractedFiles.length + " files extracted:\n" +  listOfExtractedFilesAsString(newExtractedFiles) )
         },
         function (error){
           console.log("error handler")
@@ -61,7 +73,7 @@ function HomePage() {
   
   return (
     <div>
-      <h1>Untar & IDB Test</h1>
+      <h1>Untar & IDB Test v2</h1>
       <input type="file" onChange={onFileInputChange} />
       <br />
       <br />
@@ -70,7 +82,9 @@ function HomePage() {
       <TestJavascriptButton /> <br />
       <TestGetIDBButton /> <br />
       <TestSetIDBButton /> <br />
+      <StoreFilesInIDBButton filesToStore={allExtractedFiles} /> <br />
       <StatusParagraph statusMessage={statusMessage} />
+      <ImageDisplay />
     </div>
   )
 }
@@ -103,6 +117,7 @@ function TestSetIDBButton(){
     request.onupgradeneeded = function(event){
       let db = event.target.result
       db.createObjectStore("testStore")
+      console.log("created object store testStore")
     }
     request.onsuccess = function(event){
       let db = event.target.result
@@ -139,5 +154,71 @@ function TestGetIDBButton(){
     <button onClick={onTestGetIDBClick}>Get IDB currentTime</button>
   )
 }
+
+function StoreFilesInIDBButton(props){
+  const filesToStore = props.filesToStore
+  const storeFilesInIDB = function(files){
+    let request = indexedDB.open("fileDatabase", fileDatabaseVersion) 
+    request.onupgradeneeded = function(event){
+      let db = event.target.result
+      db.createObjectStore("allFiles")
+      console.log("Created allFiles object store")
+    }
+    request.onsuccess = function(event){
+      let db = event.target.result
+      let transaction = db.transaction("allFiles", "readwrite")
+      let objectStore = transaction.objectStore("allFiles")
+      for(let i in filesToStore){
+        objectStore.put(filesToStore[i].blob, filesToStore[i].name)
+      }
+      
+      // filesToStore.forEach( (file) => {
+      //   objectStore.put( file, file.name)
+      // })
+      transaction.oncomplete = function(){
+        alert(filesToStore.length + " files stored in IDB")
+      }
+    }
+  }
+  
+  return (
+    <button onClick={storeFilesInIDB}>Store Files in IDB</button>
+  )
+  
+}
+
+
+function ImageDisplay(props){
+  //When clicked, image should cycle through all images stored in IDB
+  const [sourceURL, setSourceURL] = useState(null)
+  const [indexOfCurrentImage, setIndexOfCurrentImage] = useState(-1)
+  const getFileFromFileDatabase = function(){
+    let request = indexedDB.open("fileDatabase", fileDatabaseVersion)
+    
+    request.onsuccess = function(event){
+      let db = event.target.result
+      let transaction = db.transaction("allFiles", "readwrite")
+      let objectStore = transaction.objectStore("allFiles")
+      let allFiles = objectStore.getAll()
+      
+      allFiles.onsuccess = function(event){
+        let files = event.target.result
+        setIndexOfCurrentImage( (indexOfCurrentImage + 1) % files.length )
+        let oldBlob = files[indexOfCurrentImage]
+        let newBlob = new Blob([oldBlob], { type: "image/webp" })
+        
+        console.log({filesDotLength: files.length, indexOfCurrentImage, newBlob})
+        let fileURL = URL.createObjectURL(newBlob)
+        setSourceURL(fileURL)
+      }
+      
+    }
+  }
+  
+  return (
+    <img onClick={getFileFromFileDatabase} width={100} height={100} src={sourceURL}></img>
+  )
+}
+
 
 export default HomePage
