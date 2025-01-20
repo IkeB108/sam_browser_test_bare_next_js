@@ -1,5 +1,10 @@
-//    https://ikeb108.github.io/sam_browser_test_bare_next_js/out/
 'use client'
+/*
+https://ikeb108.github.io/sam_browser_test_bare_next_js/out/
+*/
+
+const useBasePath = process.env.USEBASEPATH==="true"
+const basePrefix = useBasePath ? "/sam_browser_test_bare_next_js/out" : ""
 
 import { useState, useEffect } from 'react';
 
@@ -73,7 +78,7 @@ function HomePage() {
   
   return (
     <div>
-      <h1>Untar & IDB Test v2</h1>
+      <h1>Untar & IDB Test v3</h1>
       <input type="file" onChange={onFileInputChange} />
       <br />
       <br />
@@ -83,6 +88,7 @@ function HomePage() {
       <TestGetIDBButton /> <br />
       <TestSetIDBButton /> <br />
       <StoreFilesInIDBButton filesToStore={allExtractedFiles} /> <br />
+      <StoreFilesInIDBWithWebWorkerButton filesToStore={allExtractedFiles} /><br />
       <StatusParagraph statusMessage={statusMessage} />
       <ImageDisplay />
     </div>
@@ -185,6 +191,21 @@ function StoreFilesInIDBButton(props){
     <button onClick={storeFilesInIDB}>Store Files in IDB</button>
   )
   
+}
+
+function StoreFilesInIDBWithWebWorkerButton(props){
+  let filesToStore = props.filesToStore;
+  const storeFilesInIDBWithWebWorker = function(){
+    const worker = new Worker(basePrefix + "/worker_for_store_files_in_idb.js")
+    worker.onmessage = function(event){
+      console.log(event.data)
+    }
+    worker.postMessage("park name?")
+    
+  }
+  return (
+    <button onClick={storeFilesInIDBWithWebWorker}>Store Files in IDB With Web Worker</button>
+  )
 }
 
 
