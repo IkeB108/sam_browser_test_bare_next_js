@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 
 const testDatabaseVersion = 2
 const fileDatabaseVersion = 1
-const programVersion = 8
+const programVersion = 9
 const useBasePath = process.env.NEXT_PUBLIC_USEBASEPATH==="true"
 const basePrefix = useBasePath ? "/sam_browser_test_bare_next_js/out" : ""
 console.log(
@@ -89,7 +89,7 @@ function HomePage() {
       <input type="file" onChange={onFileInputChange} />
       <br />
       <br />
-      <button onClick={onUntarClick}>Untar</button>
+      <button onClick={onUntarClick}>Untar</button><br />
       <br />
       <TestJavascriptButton /> <br />
       <TestGetIDBButton /> <br />
