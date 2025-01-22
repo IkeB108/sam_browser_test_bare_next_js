@@ -1,5 +1,3 @@
-const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
-
 self.onmessage = async function(event){
   let filesToStore = event.data.filesToStore
   let fileDatabaseVersion = event.data.fileDatabaseVersion
@@ -19,13 +17,13 @@ self.onmessage = async function(event){
       objectStore.put(filesToStore[i].blob, filesToStore[i].name)
       self.postMessage({
         "type": "status_update_from_web_worker",
-        "content": "Loading file #" + i
+        "content": "Storing file #" + i
       })
     }
     transaction.oncomplete = function(){
       self.postMessage({
         "type": "status_update_from_web_worker",
-        "content": "All files loaded: " + filesToStore.length + " files"
+        "content": "All files stored: " + filesToStore.length + " files"
       })
     }
   }

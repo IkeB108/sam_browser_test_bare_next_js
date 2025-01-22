@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 
 const testDatabaseVersion = 2
 const fileDatabaseVersion = 1
-const programVersion = 7
+const programVersion = 8
 const useBasePath = process.env.NEXT_PUBLIC_USEBASEPATH==="true"
 const basePrefix = useBasePath ? "/sam_browser_test_bare_next_js/out" : ""
 console.log(
@@ -73,9 +73,13 @@ function HomePage() {
   
   const listOfExtractedFilesAsString = function(extractedFilesArray){
     let extractedFilesString = ""
-    extractedFilesArray.forEach( (file) => {
-      extractedFilesString += file.name + "\n"
-    })
+    for(let i = 0; i < extractedFilesArray.length; i ++){
+      extractedFilesString += extractedFilesArray[i].name + "\n"
+      if(i > 10){
+        extractedFilesString += "And " + (extractedFilesArray.length - 10) + " more files."
+        break
+      }
+    }
     return extractedFilesString
   }
   
@@ -90,10 +94,13 @@ function HomePage() {
       <TestJavascriptButton /> <br />
       <TestGetIDBButton /> <br />
       <TestSetIDBButton /> <br />
+      <br />
       <StoreFilesInIDBButton filesToStore={allExtractedFiles} /> <br />
       <StoreFilesInIDBWithWebWorkerButton filesToStore={allExtractedFiles} statusMessageSetter={setStatusMessage} /><br />
+      <GetFilesFromIDBWithWebWorkerButton statusMessageSetter={setStatusMessage} allExtractedFilesSetter={setAllExtractedFiles} /><br />
+      <ClearIDBButton /><br />
       <StatusParagraph statusMessage={statusMessage} />
-      <ImageDisplay />
+      <ImageDisplay allExtractedFiles={allExtractedFiles} />
     </div>
   )
 }
@@ -216,36 +223,77 @@ function StoreFilesInIDBWithWebWorkerButton(props){
   )
 }
 
+function GetFilesFromIDBWithWebWorkerButton(props){
+  let setStatusMessage = props.statusMessageSetter
+  let setAllExtractedFiles = props.allExtractedFilesSetter
+  const getFilesFromIDBWithWebWorker = function(){
+    let workerPath = basePrefix + "/worker_for_get_files_from_idb.js"
+    const worker = new Worker(workerPath)
+    worker.onmessage = function(event){
+      if(event.data.type == "status_update_from_web_worker"){
+        setStatusMessage(event.data.content)
+      } else if(event.data.type == "files_from_idb"){
+        setAllExtractedFiles(event.data.content)
+      }
+    }
+    worker.postMessage({fileDatabaseVersion})
+  }
+  return (
+    <button onClick={getFilesFromIDBWithWebWorker}>Get Files from IDB With Web Worker</button>
+  )
+}
+
 
 function ImageDisplay(props){
   //When clicked, image should cycle through all images stored in IDB
+  let allExtractedFiles = props.allExtractedFiles
+  
   const [sourceURL, setSourceURL] = useState(null)
   const [indexOfCurrentImage, setIndexOfCurrentImage] = useState(-1)
   const getFileFromFileDatabase = function(){
-    let request = indexedDB.open("fileDatabase", fileDatabaseVersion)
+    // let request = indexedDB.open("fileDatabase", fileDatabaseVersion)
     
-    request.onsuccess = function(event){
-      let db = event.target.result
-      let transaction = db.transaction("allFiles", "readwrite")
-      let objectStore = transaction.objectStore("allFiles")
-      let allFiles = objectStore.getAll()
+    // request.onsuccess = function(event){
+    //   let db = event.target.result
+    //   let transaction = db.transaction("allFiles", "readwrite")
+    //   let objectStore = transaction.objectStore("allFiles")
+    //   let allFiles = objectStore.getAll()
       
-      allFiles.onsuccess = function(event){
-        let files = event.target.result
-        setIndexOfCurrentImage( (indexOfCurrentImage + 1) % files.length )
-        let oldBlob = files[indexOfCurrentImage]
-        let newBlob = new Blob([oldBlob], { type: "image/webp" })
+    //   allFiles.onsuccess = function(event){
+    //     let files = event.target.result
+    //     setIndexOfCurrentImage( (indexOfCurrentImage + 1) % files.length )
+    //     let oldBlob = files[indexOfCurrentImage]
+    //     let newBlob = new Blob([oldBlob], { type: "image/webp" })
         
-        console.log({filesDotLength: files.length, indexOfCurrentImage, newBlob})
-        let fileURL = URL.createObjectURL(newBlob)
-        setSourceURL(fileURL)
-      }
-      
-    }
+    //     console.log({filesDotLength: files.length, indexOfCurrentImage, newBlob})
+    //     let fileURL = URL.createObjectURL(newBlob)
+    //     setSourceURL(fileURL)
+    //   }
+    let newIndexOfCurrentImage = (indexOfCurrentImage + 1) % allExtractedFiles.length
+    setIndexOfCurrentImage( newIndexOfCurrentImage )
+    let blob = allExtractedFiles[newIndexOfCurrentImage].blob
+    let fileURL = URL.createObjectURL(blob)
+    setSourceURL(fileURL)
   }
   
   return (
     <img onClick={getFileFromFileDatabase} width={100} height={100} src={sourceURL}></img>
+  )
+}
+
+function ClearIDBButton(){
+  const clearIDB = function(){
+    let request = indexedDB.open("fileDatabase", fileDatabaseVersion)
+    request.onsuccess = function(event){
+      let db = event.target.result
+      let transaction = db.transaction("allFiles", "readwrite")
+      let objectStore = transaction.objectStore("allFiles")
+      objectStore.clear()
+      alert("IDB cleared")
+    }
+  }
+  return (
+    <button onClick={clearIDB}>Clear IDB</button>
   )
 }
 
