@@ -100,9 +100,9 @@ function HomePage() {
       9. Click Store Files in IDB With Web Worker.
       10. Wait for it to say "All files stored".
       11. Refresh the page.
-      12. Click Get Files in IDB With Web Worker. It should display the number of files stored in IDB.
-      13. Click the box at the bottom repeatedly. It should cycle through images of worksheets.
-      14. Let me know if any of these steps were slow, especially "Get Files in IDB With Web Worker".`}
+      12. Click Get Files from IDB With Web Worker. It should display the number of files stored in IDB.
+      13. Click the square box at the bottom repeatedly. It should cycle through images of worksheets.
+      14. Let me know if any of these steps were slow, especially "Get Files from IDB With Web Worker".`}
       </p>
       <TestJavascriptButton /> <br />
       <TestSetIDBButton /> <br />
