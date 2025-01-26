@@ -15,7 +15,7 @@ self.onmessage = async function(event){
       objectStore.put(filesToStore[i].blob, filesToStore[i].name)
       self.postMessage({
         "type": "status_update_from_web_worker",
-        "content": "Storing file #" + i
+        "content": "Storing file #" + i + "..."
       })
     }
     transaction.oncomplete = function(){

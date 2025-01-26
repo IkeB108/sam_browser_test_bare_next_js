@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 
 const testDatabaseVersion = 2
 const fileDatabaseVersion = 1
-const programVersion = 9
+const programVersion = 10
 const useBasePath = process.env.NEXT_PUBLIC_USEBASEPATH==="true"
 const basePrefix = useBasePath ? "/sam_browser_test_bare_next_js/out" : ""
 console.log(
@@ -44,10 +44,9 @@ function HomePage() {
           }
           setAllExtractedFiles(newExtractedFiles)
           console.log(newExtractedFiles)
-          setStatusMessage(newExtractedFiles.length + " files extracted:\n" +  listOfExtractedFilesAsString(newExtractedFiles) )
+          setStatusMessage("All files extracted. " + newExtractedFiles.length + " files:\n" +  listOfExtractedFilesAsString(newExtractedFiles) )
         },
         function (error){
-          console.log("error handler")
           setStatusMessage("Error: " + reader.error.message)
         }
       )
@@ -86,16 +85,35 @@ function HomePage() {
   return (
     <div>
       <h1>Untar & IDB Test v{programVersion}</h1>
+      
+      <p style={{whiteSpace: 'pre-line'}}>
+      {`Testing instructions:
+      1. Open console in case errors appear.
+      *** Click Clear IDB and refresh the page if you ever need to restart these steps.
+      2. Click "Test Javascript" to see if JS and Untar are working.
+      3. Click "Set IDB currentTime".
+      4. Refresh the page.
+      5. Click "Get IDB currentTime". It should alert you with a number rather than undefined.
+      6. Click choose file and select the provided tar file.
+      7. Click Untar. It should say "Untarring" at the bottom.
+      8. Wait for it to say "All files extracted".
+      9. Click Store Files in IDB With Web Worker.
+      10. Wait for it to say "All files stored".
+      11. Refresh the page.
+      12. Click Get Files in IDB With Web Worker. It should display the number of files stored in IDB.
+      13. Click the box at the bottom repeatedly. It should cycle through images of worksheets.
+      14. Let me know if any of these steps were slow, especially "Get Files in IDB With Web Worker".`}
+      </p>
+      <TestJavascriptButton /> <br />
+      <TestSetIDBButton /> <br />
+      <TestGetIDBButton /> <br />
+      <br />
       <input type="file" onChange={onFileInputChange} />
       <br />
       <br />
       <button onClick={onUntarClick}>Untar</button><br />
       <br />
-      <TestJavascriptButton /> <br />
-      <TestGetIDBButton /> <br />
-      <TestSetIDBButton /> <br />
-      <br />
-      <StoreFilesInIDBButton filesToStore={allExtractedFiles} /> <br />
+      {/* <StoreFilesInIDBButton filesToStore={allExtractedFiles} /> <br /> */}
       <StoreFilesInIDBWithWebWorkerButton filesToStore={allExtractedFiles} statusMessageSetter={setStatusMessage} /><br />
       <GetFilesFromIDBWithWebWorkerButton statusMessageSetter={setStatusMessage} allExtractedFilesSetter={setAllExtractedFiles} /><br />
       <ClearIDBButton /><br />
@@ -172,6 +190,7 @@ function TestGetIDBButton(){
 }
 
 function StoreFilesInIDBButton(props){
+
   const filesToStore = props.filesToStore
   const storeFilesInIDB = function(files){
     let request = indexedDB.open("fileDatabase", fileDatabaseVersion) 
@@ -204,6 +223,11 @@ function StoreFilesInIDBButton(props){
 }
 
 function StoreFilesInIDBWithWebWorkerButton(props){
+  /*
+  Note to self: immediately tell the user that the web worker has started.
+  If the button is clicked mid-process, it should kill the original process and start a new one.
+  Include a message: PLease wait / don't close the page.
+  */
   let filesToStore = props.filesToStore;
   let setStatusMessage = props.statusMessageSetter;
   const storeFilesInIDBWithWebWorker = function(){
@@ -224,6 +248,11 @@ function StoreFilesInIDBWithWebWorkerButton(props){
 }
 
 function GetFilesFromIDBWithWebWorkerButton(props){
+  /*
+  Note to self: immediately tell the user that the web worker has started.
+  If the button is clicked mid-process, it should kill the original process and start a new one.
+  Include a message: PLease wait / don't close the page.
+  */
   let setStatusMessage = props.statusMessageSetter
   let setAllExtractedFiles = props.allExtractedFilesSetter
   const getFilesFromIDBWithWebWorker = function(){
